@@ -1,24 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Stream Activity</title>
+    <meta charset="UTF-8">
+    <title>NEXUS LEGENDS | LIVE STREAM</title>
     <script src="https://unpkg.com/@discord/embedded-app-sdk"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: black; }
-        iframe { width: 100%; height: 100%; border: none; }
+        :root { --primary: #00d4ff; --bg: #0a0b10; --accent: #f39c12; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Rajdhani', sans-serif; overflow: hidden; }
+        
+        /* Header Branding */
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 30px; background: rgba(0,0,0,0.8); border-bottom: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-text { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; letter-spacing: 2px; color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+        .community-tag { background: var(--accent); color: black; padding: 2px 8px; font-weight: bold; border-radius: 4px; font-size: 0.8rem; }
+
+        /* Video Container */
+        .main-container { position: relative; width: 100vw; height: calc(100vh - 70px); background: #000; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+
+        /* Overlay for "Hidden" effect */
+        .watermark { position: absolute; bottom: 20px; right: 30px; opacity: 0.5; font-size: 1.2rem; pointer-events: none; }
+        .loading-screen { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
+        }
     </style>
 </head>
 <body>
-    <!-- This iframe loads the sports site inside your Discord-approved page -->
-    <iframe src="https://livedakho.pages.dev/?BEIN" allow="autoplay; encrypted-media; fullscreen"></iframe>
+    <div id="loader" class="loading-screen">
+        <h2 class="logo-text">NEXUS LEGENDS</h2>
+        <p>INITIALIZING SECURE STREAM...</p>
+    </div>
+
+    <div class="header">
+        <div class="logo-area">
+            <div class="logo-text">NEXUS LEGENDS</div>
+            <div class="community-tag">eFootball Official</div>
+        </div>
+        <div style="color: #888;">LIVE BROADCAST</div>
+    </div>
+
+    <div class="main-container">
+        <video id="video" controls autoplay playsinline></video>
+        <div class="watermark">Nexus Legends Community</div>
+    </div>
 
     <script>
         const discordSdk = new DiscordSDK.DiscordSDK("1518226943865262150");
-        async function setup() {
-            // This tells Discord "I am alive, don't close me!"
-            await discordSdk.ready();
+
+        async function init() {
+            try {
+                await discordSdk.ready();
+                document.getElementById('loader').style.display = 'none';
+
+                const video = document.getElementById('video');
+                // STEALTH: We call our own bot's proxy instead of the real URL
+                const proxyUrl = '/proxy-stream'; 
+
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(proxyUrl);
+                    hls.attachMedia(video);
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = proxyUrl;
+                }
+            } catch (e) {
+                console.error("Auth failed", e);
+            }
         }
-        setup();
+        init();
     </script>
 </body>
 </html>
