@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sports Stream</title>
+    <script src="https://unpkg.com/@discord/embedded-app-sdk"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        video { width: 100%; height: auto; max-height: 100vh; }
+    </style>
+</head>
+<body>
+    <video id="video" controls autoplay playsinline></video>
+
+    <script>
+        // REPLACE WITH YOUR ACTUAL CLIENT ID
+        const discordSdk = new DiscordSDK.DiscordSDK("YOUR_CLIENT_ID_HERE");
+
+        async function init() {
+            await discordSdk.ready();
+            const video = document.getElementById('video');
+            const streamUrl = 'https://b4.taazaboom.com/p/b4xsports.html?b4x=https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8&m=1';
+
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(streamUrl);
+                hls.attachMedia(video);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = streamUrl;
+            }
+        }
+        init();
+    </script>
+</body>
+</html>
